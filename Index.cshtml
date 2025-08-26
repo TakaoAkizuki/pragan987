@@ -1,0 +1,290 @@
+@{
+    ViewData["Title"] = "Тестирование PLM";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-server"></i> Тестирование подключения к PLM "Программасоюз"
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h5><i class="fas fa-info-circle"></i> Информация о PLM</h5>
+                        <p>
+                            <strong>PLM "Программасоюз"</strong> - это внешняя система управления жизненным циклом изделий.
+                            Ваше приложение подключается к ней через HTTP запросы для получения дополнительных данных.
+                        </p>
+                        <p>
+                            <strong>Текущий статус:</strong> 
+                            <span id="currentStatus" class="badge badge-warning">Не настроен</span>
+                        </p>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-plug"></i> Тест подключения</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form id="connectionTestForm">
+                                        <div class="form-group">
+                                            <label for="serverAddress">Адрес PLM сервера:</label>
+                                            <input type="text" class="form-control" id="serverAddress" 
+                                                   placeholder="например: 192.168.1.100:8080 или localhost:4450" required>
+                                            <small class="form-text text-muted">
+                                                Укажите IP адрес и порт PLM сервера
+                                            </small>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-play"></i> Тестировать подключение
+                                        </button>
+                                    </form>
+                                    
+                                    <div id="connectionResult" class="mt-3" style="display: none;">
+                                        <div class="alert" id="connectionAlert">
+                                            <div id="connectionMessage"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-code"></i> Кастомный запрос</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form id="customRequestForm">
+                                        <div class="form-group">
+                                            <label for="customServerAddress">Адрес сервера:</label>
+                                            <input type="text" class="form-control" id="customServerAddress" 
+                                                   placeholder="например: 192.168.1.100:8080" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="endpoint">Endpoint:</label>
+                                            <input type="text" class="form-control" id="endpoint" 
+                                                   placeholder="например: Service_GetObject?id=IO.1" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="method">Метод:</label>
+                                            <select class="form-control" id="method">
+                                                <option value="GET">GET</option>
+                                                <option value="POST">POST</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group" id="dataGroup" style="display: none;">
+                                            <label for="requestData">Данные (JSON):</label>
+                                            <textarea class="form-control" id="requestData" rows="3" 
+                                                      placeholder='{"key": "value"}'></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-success">
+                                            <i class="fas fa-paper-plane"></i> Отправить запрос
+                                        </button>
+                                    </form>
+                                    
+                                    <div id="customResult" class="mt-3" style="display: none;">
+                                        <div class="alert" id="customAlert">
+                                            <div id="customMessage"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-list"></i> Доступные PLM endpoints</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Endpoint</th>
+                                                    <th>Описание</th>
+                                                    <th>Метод</th>
+                                                    <th>Параметры</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td><code>Service_GetObject</code></td>
+                                                    <td>Получение объекта по ID</td>
+                                                    <td>GET</td>
+                                                    <td><code>id=IO.1</code> или <code>id=C.1</code></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><code>DC_GetRootInfoObjects</code></td>
+                                                    <td>Получение корневых объектов</td>
+                                                    <td>GET</td>
+                                                    <td><code>id=C.1</code></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><code>DC_GetChildren</code></td>
+                                                    <td>Получение дочерних объектов</td>
+                                                    <td>GET</td>
+                                                    <td><code>id=C.1</code></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><code>IO_GetChildren</code></td>
+                                                    <td>Получение дочерних InfoObjects</td>
+                                                    <td>GET</td>
+                                                    <td><code>id=IO.1</code></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><code>Service_FindInfoObjects</code></td>
+                                                    <td>Поиск объектов</td>
+                                                    <td>GET</td>
+                                                    <td><code>searchioname=название</code></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><code>Service_JsonRequest</code></td>
+                                                    <td>JSON запрос</td>
+                                                    <td>POST</td>
+                                                    <td>JSON в теле запроса</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Обработка изменения метода
+            $('#method').change(function() {
+                if ($(this).val() === 'POST') {
+                    $('#dataGroup').show();
+                } else {
+                    $('#dataGroup').hide();
+                }
+            });
+
+            // Тест подключения
+            $('#connectionTestForm').submit(function(e) {
+                e.preventDefault();
+                
+                const serverAddress = $('#serverAddress').val();
+                if (!serverAddress) {
+                    alert('Введите адрес сервера');
+                    return;
+                }
+
+                $('#connectionResult').hide();
+                
+                fetch('/PLMTest/TestConnection', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        serverAddress: serverAddress
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    $('#connectionResult').show();
+                    $('#connectionAlert').removeClass('alert-success alert-danger');
+                    
+                    if (data.success) {
+                        $('#connectionAlert').addClass('alert-success');
+                        $('#currentStatus').removeClass('badge-warning badge-danger').addClass('badge-success').text('Подключен');
+                    } else {
+                        $('#connectionAlert').addClass('alert-danger');
+                        $('#currentStatus').removeClass('badge-warning badge-success').addClass('badge-danger').text('Ошибка');
+                    }
+                    
+                    $('#connectionMessage').html(`
+                        <strong>${data.message}</strong><br>
+                        <strong>Сервер:</strong> ${data.serverAddress}<br>
+                        ${data.responseCode ? `<strong>Код ответа:</strong> ${data.responseCode}<br>` : ''}
+                        ${data.responseLength ? `<strong>Размер ответа:</strong> ${data.responseLength} символов<br>` : ''}
+                        ${data.sampleResponse ? `<strong>Пример ответа:</strong><br><pre>${data.sampleResponse}</pre>` : ''}
+                        ${data.errorType ? `<strong>Тип ошибки:</strong> ${data.errorType}` : ''}
+                    `);
+                })
+                .catch(error => {
+                    $('#connectionResult').show();
+                    $('#connectionAlert').removeClass('alert-success').addClass('alert-danger');
+                    $('#connectionMessage').html(`<strong>Ошибка запроса:</strong> ${error.message}`);
+                });
+            });
+
+            // Кастомный запрос
+            $('#customRequestForm').submit(function(e) {
+                e.preventDefault();
+                
+                const serverAddress = $('#customServerAddress').val();
+                const endpoint = $('#endpoint').val();
+                const method = $('#method').val();
+                const data = $('#requestData').val();
+                
+                if (!serverAddress || !endpoint) {
+                    alert('Заполните обязательные поля');
+                    return;
+                }
+
+                $('#customResult').hide();
+                
+                const requestData = {
+                    serverAddress: serverAddress,
+                    endpoint: endpoint,
+                    method: method,
+                    data: data
+                };
+
+                fetch('/PLMTest/TestCustomRequest', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    $('#customResult').show();
+                    $('#customAlert').removeClass('alert-success alert-danger');
+                    
+                    if (data.success) {
+                        $('#customAlert').addClass('alert-success');
+                    } else {
+                        $('#customAlert').addClass('alert-danger');
+                    }
+                    
+                    $('#customMessage').html(`
+                        <strong>${data.message}</strong><br>
+                        <strong>Сервер:</strong> ${data.serverAddress}<br>
+                        <strong>Endpoint:</strong> ${data.endpoint}<br>
+                        <strong>Метод:</strong> ${data.method}<br>
+                        ${data.responseCode ? `<strong>Код ответа:</strong> ${data.responseCode}<br>` : ''}
+                        ${data.responseLength ? `<strong>Размер ответа:</strong> ${data.responseLength} символов<br>` : ''}
+                        ${data.response ? `<strong>Ответ:</strong><br><pre>${data.response}</pre>` : ''}
+                        ${data.errorType ? `<strong>Тип ошибки:</strong> ${data.errorType}` : ''}
+                    `);
+                })
+                .catch(error => {
+                    $('#customResult').show();
+                    $('#customAlert').removeClass('alert-success').addClass('alert-danger');
+                    $('#customMessage').html(`<strong>Ошибка запроса:</strong> ${error.message}`);
+                });
+            });
+        });
+    </script>
+}
